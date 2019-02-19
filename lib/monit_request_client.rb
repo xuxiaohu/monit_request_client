@@ -32,24 +32,24 @@ module MonitRequestClient
         exception_message = e.message
         raise e
       ensure
-        if @config["collect_data"] == true && request.path.start_with?("/api")
+        if @config["collect_data"] == true && request.path.start_with?(@config["path_prifex"])
           begin
             Thread.new do
               if response
-                code = JSON.parse(response.body)["head"]["code"]
-                if code == "1000"
-                  code = ""
+                body  = JSON.parse(response.body)["head"]["code"]
+                if body && body["head"] && body["head"]["code"]
+                  code = body["head"]["code"]
                 end
               end
               stop = Time.now
               data = {"path" => request.path}
               data["method"] = request.request_method
               data["error_code"] = code
-              data["content"] = trace
               data["params"] = request.params
               data["start_time"] = start
               data["end_time"] = stop
-              data["exception_content"] = exception_message
+              data["exception"] = exception_message
+              data["exception_content"] = trace
               data["ip"] = request.ip
               data["user_id"] =  env["current_user_id"]
               data["user_agent"] = request.user_agent
