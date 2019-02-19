@@ -22,6 +22,20 @@ Or install it yourself as:
 
 ## Usage
 
+#### Config the yaml file
+```
+connect:
+  host: 127.0.0.1
+  port: 5672
+  username: guest
+  password: guest
+  vhost: /
+
+queue_name: "tsx"
+collect_data: true
+path_prifex: test
+```
+
 TODO: Write usage instructions here
 
 ## Development
