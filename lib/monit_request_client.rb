@@ -51,10 +51,13 @@ module MonitRequestClient
               stop = (Time.now.to_f * 1000).to_i
               data = {"path" => request.path}
               data["method"] = request.request_method
+              if env["rack.methodoverride.original_method"].present?
+                data["method"] = env["rack.methodoverride.original_method"]
+              end
               data["error_code"] = code
               params = request.params.dup
               # add routes params
-              if env["action_dispatch.request.parameters"]
+              if env["action_dispatch.request.parameters"].present?
                 params = params.merge(env["action_dispatch.request.parameters"])
               end
               params.delete("_method")
