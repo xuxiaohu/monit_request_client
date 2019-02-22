@@ -16,28 +16,30 @@ module MonitRequestClient
       conn = Bunny.new(@config["connect"])
       conn.start
       channel = conn.create_channel
-      @queue = channel.queue(@config["queue_name"])
+      @queue = channel.queue(@config["queue_name"], durable: true)
+      @exchange  = channel.default_exchange
       @app = app
     end
 
     def call(env)
-      start = Time.now
-      request = ::Rack::Request.new(env)
+      start = (Time.now.to_f * 1000).to_i
       trace = ""
       exception_message = ""
       code = ""
       begin
         status, headers, response = @app.call(env)
       rescue => e
-        trace = e.backtrace
+        trace = e.backtrace.join(",")
         exception_message = e.message
         raise e
       ensure
+        request = ::Rack::Request.new(env)
         if @config["collect_data"] == true && request.path.start_with?(@config["path_prifex"])
 
           Thread.new do
             begin
               begin
+                # api code for record
                 if response && request.format == "json"
                   body = JSON.parse(response.body)["head"]["code"]
                   if body && body["head"] && body["head"]["code"]
@@ -46,11 +48,18 @@ module MonitRequestClient
                 end
               rescue => e
               end
-              stop = Time.now
+              stop = (Time.now.to_f * 1000).to_i
               data = {"path" => request.path}
               data["method"] = request.request_method
               data["error_code"] = code
-              data["params"] = request.params
+              params = request.params.dup
+              # add routes params
+              if env["action_dispatch.request.parameters"]
+                params = params.merge(env["action_dispatch.request.parameters"])
+              end
+              params.delete("_method")
+              params.delete("authenticity_token")
+              data["params"] = params.to_query
               data["start_time"] = start
               data["end_time"] = stop
               data["exception"] = exception_message
@@ -58,7 +67,7 @@ module MonitRequestClient
               data["ip"] = request.ip
               data["user_id"] = env["current_user_id"]
               data["user_agent"] = request.user_agent
-              @queue.publish(data.to_json)
+              @exchange.publish(data.to_json, :routing_key => @queue.name,:persistent => true, :content_type => "text/plain")
             rescue => e
             end
           end
