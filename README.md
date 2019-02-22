@@ -1,8 +1,6 @@
 # MonitRequestClient
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/monit_request_client`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Put Rails reqeust to rabbitmq to parse. I use golang to parse it and find our application problem
 
 ## Installation
 
@@ -22,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-#### Config the yaml file
+#### Config the yaml file(config/dashboard.yml)
 ```
 connect:
   host: 127.0.0.1
@@ -33,10 +31,22 @@ connect:
 
 queue_name: "tsx"
 collect_data: true
-path_prifex: test
+path_prifex: /test
 ```
 
-TODO: Write usage instructions here
+#### config/application.rb
+```
+require 'monit_request_client'
+
+config.middleware.use  MonitRequestClient::Statistic
+```
+
+#### set current user
+```
+request.env["current_user_id"] = current_user.id
+```
+
+
 
 ## Development
 

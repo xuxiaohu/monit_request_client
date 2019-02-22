@@ -8,16 +8,19 @@ module MonitRequestClient
   class Statistic
 
     def initialize(app)
-      @config = YAML.load_file(Rails.root.join('config', 'dashboard.yml'))
-      if @config["collect_data"] == false
-        @app = app
-        return
-      end
-      conn = Bunny.new(@config["connect"])
-      conn.start
-      channel = conn.create_channel
-      @queue = channel.queue(@config["queue_name"], durable: true)
-      @exchange  = channel.default_exchange
+      begin
+        @config = YAML.load_file(Rails.root.join('config', 'dashboard.yml'))
+        if @config["collect_data"] == false
+          @app = app
+          return
+        end
+        conn = Bunny.new(@config["connect"])
+        conn.start
+        channel = conn.create_channel
+        @queue = channel.queue(@config["queue_name"], durable: true)
+        @exchange  = channel.default_exchange
+        rescue => e
+        end
       @app = app
     end
 
@@ -34,7 +37,7 @@ module MonitRequestClient
         raise e
       ensure
         request = ::Rack::Request.new(env)
-        if @config["collect_data"] == true && request.path.start_with?(@config["path_prifex"])
+        if @config && @config["collect_data"] == true && request.path.start_with?(@config["path_prifex"])
 
           Thread.new do
             begin
