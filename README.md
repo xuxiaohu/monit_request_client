@@ -1,6 +1,8 @@
 # MonitRequestClient
 
-Put Rails reqeust to rabbitmq to parse. I use golang to parse it and find our application problem
+Put Rails reqeust to rabbitmq to parse. I use golang to parse it and find our application problem.
+But I want to use grpc to implement it in future(used it in golang in some project).
+step by step, just wait.
 
 ## Installation
 

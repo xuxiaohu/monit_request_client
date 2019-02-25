@@ -9,7 +9,7 @@ module MonitRequestClient
 
     def initialize(app)
       begin
-        @config = YAML.load_file(Rails.root.join('config', 'dashboard.yml'))
+        @config = Hashie::Mash.new YAML.load_file(Rails.root.join('config', 'dashboard.yml'))
         if @config["collect_data"] == false
           @app = app
           return
