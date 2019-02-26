@@ -1,4 +1,5 @@
 require "monit_request_client/version"
+require "hashie"
 
 module MonitRequestClient
   class Error < StandardError;
@@ -43,8 +44,8 @@ module MonitRequestClient
             begin
               begin
                 # api code for record
-                if response && request.format == "json"
-                  body = JSON.parse(response.body)["head"]["code"]
+                if response && headers && headers["Content-Type"].include?("application/json")
+                  body = JSON.parse(response.body.dup)
                   if body && body["head"] && body["head"]["code"]
                     code = body["head"]["code"]
                   end
