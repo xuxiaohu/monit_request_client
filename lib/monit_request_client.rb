@@ -74,6 +74,7 @@ module MonitRequestClient
               data["ip"] = request.ip
               data["user_id"] = env["current_user_id"]
               data["user_agent"] = request.user_agent
+              data["uuid"] = request.header["uuid"]
               @exchange.publish(data.to_json, :routing_key => @queue.name,:persistent => true, :content_type => "text/plain")
             rescue => e
             end
