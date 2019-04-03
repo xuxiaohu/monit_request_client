@@ -71,7 +71,7 @@ module MonitRequestClient
               data["end_time"] = stop
               data["exception"] = exception_message
               data["exception_content"] = trace
-              data["ip"] = request.ip
+              data["ip"] = request.remote_ip || request.ip
               data["user_id"] = env["current_user_id"]
               data["user_agent"] = request.user_agent
               data["uuid"] = env["HTTP_UUID"] if env["HTTP_UUID"]
