@@ -71,7 +71,13 @@ module MonitRequestClient
               data["end_time"] = stop
               data["exception"] = exception_message
               data["exception_content"] = trace
-              data["ip"] = request.remote_ip || request.ip
+              fwd = env['HTTP_X_FORWARDED_FOR']
+              if fwd
+                ip = fwd.strip.split(/[,\s]+/)[0] # stolen from Rack::Request#split_ip_addresses
+              else
+                ip = env['HTTP_X_REAL_IP'] || env['REMOTE_ADDR']
+              end
+              data["ip"] = ip
               data["user_id"] = env["current_user_id"]
               data["user_agent"] = request.user_agent
               data["uuid"] = env["HTTP_UUID"] if env["HTTP_UUID"]
