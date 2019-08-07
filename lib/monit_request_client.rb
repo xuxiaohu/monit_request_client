@@ -66,6 +66,8 @@ module MonitRequestClient
               end
               params.delete("_method")
               params.delete("authenticity_token")
+              params.delete("password")
+              params.delete("password_confirmation")
               data["params"] = params.to_query
               data["start_time"] = start
               data["end_time"] = stop
